@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    {% if user.is_authenticated and user_profile.otp_completed %}
+      <h1>Log in completed</h1>
+      <p>Add item in nav-bar<a href="{% url 'add_item' %}">Navbar</a></p>
+    {% else %}
+      <h1>Log in incomplete</h1>
+      <!-- You can add additional content or redirect the user as needed -->
+    {% endif %}
+  </div>
+{% endblock %}
+
+

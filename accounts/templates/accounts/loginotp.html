@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h2>Login with OTP</h2>
+  <form id="otpForm" method="post" action="{% url 'accounts:loginotp' %}">
+    {% csrf_token %}
+
+    <div>
+      <label for="otp">OTP:</label>
+      <input class="form-control" type="text" id="otpInput" name="otp" required>
+    </div>
+    
+    <div>
+      <button class="btn btn-primary mt-3" type="button" id="loginButton">Login</button>
+      <button id="resendOTP" class="btn btn-secondary mt-3">Resend OTP</button>
+    </div>
+  </form>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  
+  <script>
+    // Function to get CSRF token from cookies
+    function getCSRFToken() {
+      var cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+          var cookie = cookies[i].trim();
+          // Extract CSRF token from the cookie
+          if (cookie.substring(0, 10) === 'csrftoken=') {
+            cookieValue = decodeURIComponent(cookie.substring(10));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+  
+    // Resend OTP event listener
+    document.getElementById("resendOTP").addEventListener("click", function(event) {
+      event.preventDefault();  // Prevent form submission
+        
+      // Send AJAX request to resend OTP
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "{% url 'accounts:loginotp' %}", true);
+      xhr.setRequestHeader("X-CSRFToken", getCSRFToken()); // Set CSRF token
+      xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            // Handle successful response
+            console.log("OTP Resent successfully");
+          } else {
+            // Handle error response
+            console.error("Error resending OTP:", xhr.responseText);
+          }
+        }
+      };
+      xhr.send("resend_otp=true");  // Send 'resend_otp' parameter
+    });
+  
+    // OTP verification event listener
+    document.getElementById("loginButton").addEventListener("click", function(event) {
+      var otp = document.getElementById("otpInput").value;
+        
+      // Append OTP to form data
+      var formData = new FormData();
+      formData.append("otp", otp);
+        
+      // Send OTP for verification by submitting the form with appended OTP
+      var xhr = new XMLHttpRequest();
+      xhr.open("POST", "{% url 'accounts:loginotp' %}", true);
+      xhr.setRequestHeader("X-CSRFToken", getCSRFToken()); // Set CSRF token
+      xhr.onreadystatechange = function() {
+        if (xhr.readyState == XMLHttpRequest.DONE) {
+          if (xhr.status == 200) {
+            // Handle successful response
+            console.log("OTP Verified");
+            window.location.href = xhr.responseURL;  // Redirect to the response URL (success redirection)
+          } else {
+            // Handle error response
+            console.error("Error verifying OTP:", xhr.responseText);
+          }
+        }
+      };
+      xhr.send(formData);  // Send form data with OTP for verification
+    });
+  </script>
+{% endblock %}

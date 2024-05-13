@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add and Use Items</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.6.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.6.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+    {% extends "base.html" %}
+
+    {% block content %}
+        {% if user.is_authenticated %}
+            {% if user_profile %}
+                {% if user_profile.otp_completed %}
+                    <div class="container mycontent">
+                        <h2>Add and Use Items</h2>
+                        <form id="addItemForm" method="post">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="selectedItem">Select Item:</label>
+                                <!-- Dropdown menu populated with added item names -->
+                                <select class="form-control" id="selectedItem">
+                                    {% for item in items %}
+                                        <option value="{{ item.name }}">{{ item.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="itemURL">Item URL Pattern Name:</label>
+                                <input type="text" class="form-control" id="itemURL" name="item_url" placeholder="Enter URL Pattern Name">
+                            </div>
+                            <button type="button" id="addItemBtn" class="btn btn-primary">Add Item</button>
+                        </form>
+
+                        <h2>Added Items</h2>
+                        <div class="excel-table-container">
+                            <table id="added-item-table" class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Navigation URL</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in items %}
+                                        <tr>
+                                            <td>
+                                                <!-- Anchor tag with data attribute to store item name -->
+                                                <a href="#" class="added-item-link" data-name="{{ item.name }}" data-url="{{ item.url }}">{{ item.name }}</a>
+                                            </td>
+                                            <td>{{ item.url }}</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-danger delete-btn">Delete</button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                {% else %}
+                    <h1>You are logged in, but OTP is not completed</h1>
+                {% endif %}
+            {% else %}
+                <h1>User profile not found</h1>
+            {% endif %}
+        {% else %}
+            <h1>You are not logged in</h1>
+        {% endif %}
+
+        <script>
+            
+            $(document).ready(function() {
+                // Function to add an item to the table
+                function addItemToTable(name, url) {
+                    // Check if the item already exists in the table
+                    var existingRow = $('#added-item-table tbody').find('td:contains(' + name + ')').closest('tr');
+                    if (existingRow.length === 0) {
+                        $('#added-item-table tbody').append('<tr>' +
+                            '<td><a href="' + url + '" class="added-item-link" data-url="' + url + '">' + name + '</a></td>' +
+                            '<td>' + url + '</td>' +
+                            '<td><button class="btn btn-sm btn-danger delete-btn">Delete</button></td>' +
+                            '</tr>');
+                    }
+                }
+            
+                // Function to load added items from localStorage
+                function loadAddedItems() {
+                    for (var i = 0; i < localStorage.length; i++) {
+                        var itemName = localStorage.key(i);
+                        var itemURL = localStorage.getItem(itemName);
+                        if (itemURL) {
+                            addItemToTable(itemName, itemURL);
+                        }
+                    }
+                }
+            
+                // Add item form submission
+                $('#addItemBtn').click(function(event) {
+                    event.preventDefault(); // Prevent default form submission
+                    var selectedItem = $('#selectedItem').val(); // Get the selected item name
+                    var itemURLPatternName = $('#itemURL').val(); // Retrieve URL Pattern Name from user input
+                    
+                    if (selectedItem && itemURLPatternName) {
+                        // Construct the URL dynamically using JavaScript
+                        var url = itemURLPatternName;
+            
+                        // Check if the URL is internal or external
+                        if (!url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('www.')) {
+                            // Prepend the base URL for internal URLs
+                            url = '/' + url + '/';
+                        }
+                        else if (url.startsWith('www.')) {
+                            // For URLs starting with 'www.', prepend 'http://'
+                            url = 'http://' + url;
+                        }
+            
+                        // Save to localStorage
+                        localStorage.setItem(selectedItem, url);
+            
+                        // Append the new item to the Ministries dropdown
+                        $('#ministries-dropdown').append('<li><a class="dropdown-item" href="' + url + '">' + selectedItem + '</a></li>');
+            
+                        // Add item to the table
+                        addItemToTable(selectedItem, url);
+                    } else {
+                        alert('Please select an item and provide the URL Pattern Name.');
+                    }
+                });
+            
+                // Restore added items from localStorage on page load
+                loadAddedItems();
+            
+                // Click event handler for dynamically added item links
+                $(document).on('click', '.added-item-link', function(event) {
+                    event.preventDefault();
+                    var itemName = $(this).text(); // Get the item name from the link text
+                    $('#selectedItem').val(itemName); // Set the item name in the dropdown menu
+                    var itemURL = $(this).data('url');
+                    window.location.href = itemURL;
+                });
+            
+                // Delete button functionality
+                $(document).on('click', '.delete-btn', function() {
+                    var row = $(this).closest('tr');
+                    var itemName = row.find('td:first-child').text();
+                    // Remove item from localStorage
+                    localStorage.removeItem(itemName);
+                    // Remove row from table
+                    row.remove();
+                });
+            });
+            
+            
+            
+
+        </script>
+        
+      
+    {% endblock %}
+</body>
+</html>

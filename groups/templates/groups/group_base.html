@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    {% if user.is_authenticated %}
+      {% if user_profile %}
+        {% if user_profile.otp_completed %}
+    
+          <h1>Welcome to the group</h1>
+
+          <div class="row">
+
+            {% block group_content%} 
+            {% endblock %}
+
+          </div>
+
+          <div class="row">
+            {% block pregroup %} 
+            {%endblock%}
+          </div>
+
+          <div class="row">
+            {% block postgroup%}
+            {% endblock %}
+          </div>
+         
+        
+        {% else %}
+          <h1>You are logged in, but OTP is not completed</h1>
+        {% endif %}
+      {% else %}
+        <h1>User profile not found</h1>
+      {% endif %}
+    {% else %}
+      <h1>You are not logged in</h1>
+    {% endif %}
+  </div>
+{% endblock %}

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Items</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.6.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.6.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+
+{% extends "base.html" %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if user_profile %}
+      {% if user_profile.otp_completed %}
+        <div class="container mycontent">
+          <h2>Ministries</h2>
+          <form method="post" action="{% url 'add_item' %}">
+            {% csrf_token %}
+            <label for="newItem">New Ministries</label>
+            <input type="text" id="newItem" name="new_item">
+            <button type="submit">Add</button>
+          </form>
+          <p>Make is as a dropdown or navigate  <a href="{% url 'process_usage_form' %}">D/N</a>?</p>
+          <div id="addedItemMessage" style="display: none;" class="alert alert-success mt-3"></div>
+        </div>
+
+        <!-- Add some space between the form and the table -->
+        <div style="margin-top: 20px;"></div>
+
+        <div class="excel-table-container">
+          <style>
+            .excel-table-container {
+              width: 100%;
+              overflow-x: auto;
+            }
+          
+            #item-table {
+              border-collapse: collapse;
+              width: 100%;
+            }
+          
+            #item-table th, #item-table td {
+              border: 1px solid #dddddd;
+              padding: 8px;
+              text-align: left;
+            }
+          
+            #item-table th {
+              background-color: #f2f2f2;
+            }
+          </style>
+          
+          <div class="excel-table-container">
+            <table id="item-table">
+              <thead>
+                <tr>
+                  <th>Ministries Added</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in items %}
+                <tr>
+                  <td>{{ item.name }}</td> <!-- Debug output to check the user attribute -->
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+  $(document).ready(function() {
+    // Function to construct URL dynamically
+    function constructURL(itemName) {
+        // Retrieve the URL from localStorage
+        var url = localStorage.getItem(itemName);
+        if (url) {
+            return url;
+        }
+        return null;
+    }
+
+    // Function to update the item table
+    function updateItemTable() {
+        $.ajax({
+            url: '{% url "item_list_endpoint" %}',
+            success: function(data) {
+                // Update the table with the new data
+                $('#item-table tbody').html('');
+                data.forEach(function(item) {
+                    // Construct the URL dynamically for each item
+                    var url = constructURL(item.name);
+                    if (url) {
+                        $('#item-table tbody').append(
+                            `<tr>
+                                <td><a href="${url}" class="added-item-link" data-url="${url}">${item.name}</a></td>
+                            </tr>`
+                        );
+                    } else {
+                        $('#item-table tbody').append(
+                            `<tr>
+                                <td>${item.name}</td>
+                            </tr>`
+                        );
+                    }
+                });
+            }
+        });
+    }
+
+    // Call updateItemTable every 1 seconds
+    setInterval(updateItemTable, 1000);
+
+    // Function to add item to Ministries dropdown
+    function addItemToMinistriesDropdown(itemName, url) {
+        $('#ministries-dropdown').append('<li><a class="dropdown-item" href="' + url + '">' + itemName + '</a></li>');
+    }
+
+    // Add item form submission
+    $('#addItemBtn').click(function(event) {
+        event.preventDefault(); // Prevent default form submission
+        var selectedItem = $('#selectedItem').val(); // Get the selected item name
+        var itemURLPatternName = $('#itemURL').val(); // Retrieve URL Pattern Name from user input
+        
+        if (selectedItem && itemURLPatternName) {
+            // Construct the URL dynamically using JavaScript
+            var url = '/' + itemURLPatternName + '/';
+
+            // Check if the item already exists in the table
+            var existingRow = $('#added-item-table tbody').find('td:contains(' + selectedItem + ')').closest('tr');
+            if (existingRow.length > 0) {
+                // Update the existing row's URL if the item already exists
+                existingRow.find('td:nth-child(2)').text(url);
+            } else {
+                // Append the new row to the table if the item doesn't exist
+                $('#added-item-table tbody').append('<tr>' +
+                    '<td><a href="' + url + '" class="added-item-link" data-url="' + url + '">' + selectedItem + '</a></td>' +
+                    '<td>' + url + '</td>' +
+                    '<td><button class="btn btn-sm btn-danger delete-btn">Delete</button></td>' +
+                    '</tr>');
+            }
+
+            // Save to localStorage
+            localStorage.setItem(selectedItem, url);
+
+            // Append the new item to the Ministries dropdown
+            addItemToMinistriesDropdown(selectedItem, url);
+        } else {
+            alert('Please select an item and provide the URL Pattern Name.');
+        }
+    });
+});
+
+
+</script>
+
+{% else %}
+<h1>You are logged in, but OTP is not completed</h1>
+{% endif %}
+{% else %}
+<h1>User profile not found</h1>
+{% endif %}
+{% else %}
+<h1>You are not logged in</h1>
+{% endif %}
+  
+{% endblock %}
+</body>
+</html>

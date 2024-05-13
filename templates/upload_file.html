@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if user_profile %}
+      {% if user_profile.otp_completed %}
+        <h1>Welcome, {{ user.username }}!</h1>
+        <p>Your OTP has been completed.</p>
+        
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <label for="file">Upload File:</label>
+          <input type="file" name="file" id="file">
+          <button type="submit">Upload</button>
+        </form>
+        
+        {% if uploaded_file %}
+          <p>File {{ uploaded_file.name }} has been uploaded successfully!</p>
+        {% endif %}
+      {% else %}
+        <p>Your OTP is not completed yet.</p>
+      {% endif %}
+    {% else %}
+      <p>User profile not found.</p>
+    {% endif %}
+  {% else %}
+    <p>Please log in to access this page.</p>
+  {% endif %}
+{% endblock %}

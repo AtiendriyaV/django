@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if user_profile %}
+      {% if user_profile.otp_completed %}
+        <div class="container">
+          <h2>Data Visualization</h2>
+          <div class="table-container">
+            <div zclass="table-responsive">
+              <table id="dataTable" class="table table-bordered">
+                <thead class="text-center" style="margin: 0; padding: 0;">
+                  <tr>
+                    <th>S_no</th>
+                    <th>Date</th>
+                    <th>Batch</th>
+                    <th>URL</th>
+                    <th>Vulnerabilities</th>
+                    <th>Critical</th>
+                    <th>High</th>
+                    <th>Medium</th>
+                    <th>Low</th>
+                    <th>Total</th>
+                    <th>Ministry</th>
+                    <th>Patched Status</th>
+                  </tr>
+                </thead>
+                <tbody class="text-center">
+                  {% for data in data_list %}
+                    <tr>
+                      <td>{{ data.S_no }}</td>
+                      <td>{{ data.Date|date }}</td>
+                      <td>{{ data.Batch }}</td>
+                      <td>{{ data.URL }}</td>
+                      <td style="vertical-align: top;">{{ data.Vulnerabilities|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.Critical|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.High|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.Medium|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.Low|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.Total|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.Ministry|safe }}</td>
+                      <td style="vertical-align: top;">{{ data.PatchedStatus|safe }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      {% else %}
+        <h1>You are logged in, but OTP is not completed</h1>
+      {% endif %}
+    {% else %}
+      <h1>User profile not found</h1>
+    {% endif %}
+  {% else %}
+    <h1>You are not logged in</h1>
+  {% endif %}
+
+  <!-- Include necessary CSS and JavaScript -->
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.24/css/jquery.dataTables.min.css">
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css">
+  <script src="https://cdn.datatables.net/1.10.24/js/jquery.dataTables.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.2.2/js/dataTables.buttons.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.html5.min.js"></script>
+  <script src="https://cdn.datatables.net/buttons/2.2.2/js/buttons.print.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+
+  <script>
+    $(document).ready(function() {
+      $('#dataTable').DataTable({
+        "paging": true, // Enable pagination
+        "ordering": true, // Enable sorting
+        "searching": true, // Enable searching
+        "scrollX": true,
+        "scrollY": "50vh",
+        "scrollCollapse": true,
+        "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        "pageLength": 4,
+        // Enable sorting on all columns
+        "columnDefs": [{
+          "targets": "_all",
+          "orderable": true
+        }],
+        // Add buttons for exporting data
+        dom: 'Bfrtip',
+        buttons: [
+            'excel', 'csv', 'pdf', 'print'
+        ]
+      });
+    });
+  </script>
+{% endblock %}
