@@ -35,4 +35,6 @@ urlpatterns = [
     path('upload_file/', views.upload_file, name='upload_file'),
     path('Data/', views.Data, name='Data'),
     path('chart/', views.chart, name='chart'),
+    path('audit/', views.audit_view, name='audit'),
+    path('review/', views.review_view, name='review'),
     ]

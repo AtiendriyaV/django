@@ -140,6 +140,7 @@ class AddedURL(models.Model):
 from django.contrib.auth.models import User
 
 class FileUploadModel(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, default=1)  
     file = models.FileField(upload_to='uploads/')
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

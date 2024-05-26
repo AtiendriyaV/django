@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    {% if user.is_authenticated %}
+      {% if user_profile %}
+        {% if user_profile.otp_completed %}
+    
+          <h1>Welcome to Audit</h1>
+
+
+            
+        {% else %}
+        <h1>You are logged in, but OTP is not completed</h1>
+      {% endif %}
+    {% else %}
+      <h1>User profile not found</h1>
+    {% endif %}
+  {% else %}
+    <h1>You are not logged in</h1>
+  {% endif %}
+</div>
+{% endblock %}

@@ -6,3 +6,45 @@
     margin-top: 0;
   }
   
+
+  <style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px; /* Adjust margin as needed */
+    }
+
+    th, td {
+        padding: 8px; /* Adjust padding as needed */
+        text-align: left; /* Adjust text alignment as needed */
+    }
+
+    th {
+        background-color: #f2f2f2; /* Optional: Set background color for column headers */
+    }
+
+    tbody tr:nth-child(even) {
+        background-color: #f2f2f2; /* Optional: Set alternating row colors */
+    }
+</style>
+
+<table>
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Batch</th>
+            <th>URL</th>
+            <!-- Add more column headers as needed -->
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in data_list %}
+        <tr>
+            <td>{{ item.Date }}</td>
+            <td>{{ item.Batch }}</td>
+            <td>{{ item.URL }}</td>
+            <!-- Render other columns similarly -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</t

@@ -6,6 +6,8 @@ from django.conf import settings
 from accounts.views import WellView, add_item 
 from accounts. views import delete_item
 from accounts.views import item_table_view, item_list_endpoint, process_usage_form
+from django.shortcuts import redirect
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     re_path("^$", views.HomePage.as_view(), name="home"),
@@ -20,4 +22,5 @@ urlpatterns = [
     path('item_table/', item_table_view, name='item_table'),
     path('item_list/', item_list_endpoint, name='item_list_endpoint'),
     path('process_usage_form/', process_usage_form, name='process_usage_form'),
+    path('admin-login/', lambda request: redirect('/admin/login/?next=/admin/'), name='admin-login'),
 ]
