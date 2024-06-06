@@ -37,4 +37,5 @@ urlpatterns = [
     path('chart/', views.chart, name='chart'),
     path('audit/', views.audit_view, name='audit'),
     path('review/', views.review_view, name='review'),
+    path('form/', views.MyWizardView.as_view(), name='form'),
     ]

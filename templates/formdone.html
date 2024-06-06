@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Form Completed</h1>
+  <h2>Submitted Data</h2>
+  <table border="1">
+    <tr>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Address</th>
+      <th>Phone</th>
+    </tr>
+    <tr>
+      <td>{{ form_data.0.name }}</td>
+      <td>{{ form_data.0.email }}</td>
+      <td>{{ form_data.1.address }}</td>
+      <td>{{ form_data.1.phone }}</td>
+    </tr>
+  </table>
+{% endblock %}

@@ -49,3 +49,14 @@ from django import forms
 
 class UploadFileForm(forms.Form):
     file = forms.FileField()
+
+# forms.py
+from django import forms
+
+class FormStepOne(forms.Form):
+    name = forms.CharField(label='Name', max_length=100)
+    email = forms.EmailField(label='Email')
+
+class FormStepTwo(forms.Form):
+    address = forms.CharField(label='Address', max_length=255)
+    phone = forms.CharField(label='Phone', max_length=20)

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  {% if user.is_authenticated %}
+    {% if user_profile %}
+      {% if user_profile.otp_completed %}
+        <h1>Step 2: Contact Information</h1>
+        <form method="post" action="">
+          {% csrf_token %}
+          {{ wizard.management_form }}
+          {{ wizard.form.non_field_errors }}
+          <div>
+              {{ wizard.form.address.errors }}
+              {{ wizard.form.address.label_tag }} {{ wizard.form.address }}
+          </div>
+          <div>
+              {{ wizard.form.phone.errors }}
+              {{ wizard.form.phone.label_tag }} {{ wizard.form.phone }}
+          </div>
+          <button type="submit">Submit</button>
+        </form>
+      {% else %}
+        <p>OTP verification not completed.</p>
+      {% endif %}
+    {% else %}
+      <p>User profile not found.</p>
+    {% endif %}
+  {% else %}
+    <p>Please log in to access the form.</p>
+  {% endif %}
+{% endblock %}

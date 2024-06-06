@@ -630,3 +630,50 @@ def review_view(request):
         context['error'] = "User profile not found"
 
     return render(request, 'accounts/review.html', context)
+
+# # views.py
+from formtools.wizard.views import SessionWizardView
+from django.shortcuts import render, redirect
+from .forms import FormStepOne, FormStepTwo
+from .models import UserProfile
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
+FORMS = [
+    ("step_one", FormStepOne),
+    ("step_two", FormStepTwo),
+]
+
+TEMPLATES = {
+    "step_one": "form_step_one.html",
+    "step_two": "form_step_two.html",
+}
+
+@method_decorator(login_required, name='dispatch')
+class MyWizardView(SessionWizardView):
+    form_list = FORMS
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect('login')
+        
+        user_profile, created = UserProfile.objects.get_or_create(user=request.user)
+        
+        if not user_profile.otp_completed:
+            return render(request, 'otp_not_completed.html')
+        
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, form, **kwargs):
+        context = super().get_context_data(form, **kwargs)
+        context['user_profile'] = UserProfile.objects.get(user=self.request.user)
+        return context
+
+    def get_template_names(self):
+        return [TEMPLATES[self.steps.current]]
+
+    def done(self, form_list, **kwargs):
+        form_data = [form.cleaned_data for form in form_list]
+        return render(self.request, 'formdone.html', {
+            'form_data': form_data
+        })
